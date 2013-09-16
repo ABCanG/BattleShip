@@ -36,11 +36,19 @@ typedef struct Board {
   int type;
 } Board;
 
+typedef struct Ship {
+  int rest;
+  int head_x;
+  int head_y;
+  int direction;
+} Ship;
+
 typedef struct Info {
   Board board[10][10];
-  int ship[SHIP_NUM];
+  Ship ship[SHIP_NUM];
   int ship_num;
 } Info;
+
 
 
 void initStatus();
@@ -48,7 +56,8 @@ int attack(int x, int y, int person);
 int setShip(int x, int y, int person, int type, int direction);
 void setShipRandom(int person);
 int getShipNum(int person);
+Ship getShipInfo(int person, int type);
 Board getBoardStatus(int person, int x, int y);
-void debugPrint();
+int deleteShip(int person, int type);
 
 #endif

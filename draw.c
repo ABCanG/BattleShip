@@ -267,6 +267,25 @@ void drawShip(int x, int y, int person, int print_ship){
   }
 }
 
+void drawSelecetdShip(int board_x, int board_y, int x, int y, int person, int type, int direction){
+  board_x++; board_y++;
+  int i;
+  Ship info = getShipInfo(person, type);
+  int size = info.rest;
+  if(direction == VERTICAL){
+    int max = y + size - 1;
+    for(i=y; i<=max; i++){
+      drawBox(board_x + x*20, board_y + i*20, board_x + x*20 + 19, board_y + i*20 + 19, 0x80FFFFFF & YELLOW);
+    }
+  } else {
+    int max = x + size - 1;
+    for(i=x; i<=max; i++){
+      drawBox(board_x + i*20, board_y + y*20, board_x + i*20 + 19, board_y + y*20 + 19, 0x80FFFFFF & YELLOW);
+    }
+  }
+}
+
+
 void drawNowPos(int board_x, int board_y, int x, int y){
   board_x++; board_y++;
   drawBox(board_x + x*20, board_y + y*20, board_x + x*20 + 19, board_y + y*20 + 19, 0x80FFFFFF & YELLOW);

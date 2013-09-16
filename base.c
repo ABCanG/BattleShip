@@ -5,10 +5,12 @@ static Info info[2];
 static int ship_size[SHIP_NUM] = {0, 5, 4, 3, 3, 2};
 
 void initStatus(){
-  int i;
+  int i, j;
   for(i=0; i<2; i++){
     memset(&info[i], 0, sizeof(Info));
-    memcpy(info[i].ship, ship_size, SHIP_NUM*sizeof(int));
+    for(j=0; j<SHIP_NUM; j++){
+      info[i].ship[j].rest = ship_size[j];
+    }
     info[i].ship_num = SHIP_NUM - 1;
   }
 }
@@ -21,8 +23,8 @@ int attack(int x, int y, int person){
   } else {
     info[person].board[x][y].status = ATTACKED;
     if(board.type != NONE){
-      info[person].ship[board.type]--;
-      if(info[person].ship[board.type] == 0){
+      info[person].ship[board.type].rest--;
+      if(info[person].ship[board.type].rest == 0){
         info[person].ship_num--;
       }
       ret = HIT;
@@ -33,50 +35,70 @@ int attack(int x, int y, int person){
   return ret;
 }
 
+Ship getShipInfo(int person, int type){
+  return info[person].ship[type];
+}
+
 int getShipNum(int person){
   return info[person].ship_num;
 }
 
 
-void debugPrint(){
-  printf("YOU\n");
-  int i;
-  for(i=0; i<10; i++){
-    printf("%d %d %d %d %d %d %d %d %d %d\n", info[YOU].board[i][0].type, info[YOU].board[i][1].type, info[YOU].board[i][2].type, info[YOU].board[i][3].type, info[YOU].board[i][4].type, info[YOU].board[i][5].type, info[YOU].board[i][6].type, info[YOU].board[i][7].type, info[YOU].board[i][8].type, info[YOU].board[i][9].type);
-  }
-  printf("RIVAL\n");
-  for(i=0; i<10; i++){
-    printf("%d %d %d %d %d %d %d %d %d %d\n", info[RIVAL].board[i][0].type, info[RIVAL].board[i][1].type, info[RIVAL].board[i][2].type, info[RIVAL].board[i][3].type, info[RIVAL].board[i][4].type, info[RIVAL].board[i][5].type, info[RIVAL].board[i][6].type, info[RIVAL].board[i][7].type, info[RIVAL].board[i][8].type, info[RIVAL].board[i][9].type);
-  }
-}
-
 int setShip(int x, int y, int person, int type, int direction){
   int i, max;
   if(direction == VERTICAL){
-    max = y + ship_size[type];
+    max = y + ship_size[type] - 1;
     if(x < 0 || x > 9 || y < 0 || max > 9){
       return -1;
     }
-    for(i=y; i<max; i++){
+    for(i=y; i<=max; i++){
       if(info[person].board[x][i].type != NONE){
         return -1;
       }
     }
-    for(i=y; i<max; i++){
+    for(i=y; i<=max; i++){
       info[person].board[x][i].type = type;
     }
   } else {
-    max = x + ship_size[type];
+    max = x + ship_size[type] - 1;
     if(x < 0 || max > 9 || y < 0 || y > 9){
       return -1;
     }
-    for(i=x; i<max; i++){
+    for(i=x; i<=max; i++){
       if(info[person].board[i][y].type != NONE){
         return -1;
       }
     }
-    for(i=x; i<max; i++){
+    for(i=x; i<=max; i++){
       info[person].board[i][y].type = type;
+    }
+  }
+  info[person].ship[type].head_x = x;
+  info[person].ship[type].head_y = y;
+  info[person].ship[type].direction = direction;
+  return 0;
+}
+
+int deleteShip(int person, int type){
+  if(type == NONE){
+    return -1;
+  }
+  int x = info[person].ship[type].head_x;
+  int y = info[person].ship[type].head_y;
+  if(info[person].board[x][y].type == NONE){
+    return -1;
+  }
+  int direction = info[person].ship[type].direction;
+  int i;
+  if(direction == VERTICAL){
+    int max = y + ship_size[type] - 1;
+    for(i=y; i<=max; i++){
+      info[person].board[x][i].type = NONE;
+    }
+  } else {
+    int max = x + ship_size[type] - 1;
+    for(i=x; i<=max; i++){
+      info[person].board[i][y].type = NONE;
     }
   }
   return 0;

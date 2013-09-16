@@ -17,6 +17,7 @@ int waitButtonUp(u32 buttons){
 void startGameCpu(){
   initStatus();
   setShipRandom(YOU);
+  changeShipPos();
   setShipRandom(RIVAL);
   SceKernelUtilsMt19937Context ctx;
   sceKernelUtilsMt19937Init(&ctx, clock());
@@ -54,8 +55,6 @@ void startGameCpu(){
       break;
     }
   }
-
-  debugPrint();
 }
 
 void startGameAdhoc(){
@@ -83,6 +82,7 @@ void finishGame(int person){
       printTextCenter(136, "YOU WIN");
     }
     changeStyle(1.0, WHITE, BLACK, 0);
+    printTextCenter(265, "return title to press O");
     endDraw();
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_CIRCLE){
@@ -130,4 +130,100 @@ void selectAndAttack(int *x, int *y){
     }
     sceKernelDelayThread(10*1000);
   }
+}
+
+void changeShipPos(){
+  SceCtrlData pad;
+  int x=0, y=0;
+  int direction = VERTICAL;
+  int type = NONE;
+  int max_x = 9, max_y = 9;
+  while(1){
+    startDraw(CADETBLUE);
+    drawBoard(25, 36, BLACK);
+    drawShip(25, 36, YOU, 1);
+    if(type == NONE){
+      drawNowPos(25, 36, x, y);
+    } else {
+      drawSelecetdShip(25, 36, x, y, YOU, type, direction);
+    }
+
+    printTextCenter(20, "Setting Ship's Position");
+    printText(255, 80, "select / release to \npress O");
+    printText(255, 130, "move pointer to press \narrow buttons");
+    printText(255, 180, "change direction to \npress R or L");
+    printText(255, 230, "start game to press \nstart");
+
+    endDraw();
+
+    sceCtrlReadBufferPositive(&pad, 1);
+    if(pad.Buttons & PSP_CTRL_DOWN){
+      y++;
+      if(y > max_y)y = 0;
+      sceKernelDelayThread(100*1000);
+    } else if(pad.Buttons & PSP_CTRL_UP){
+      y--;
+      if(y < 0)y = max_y;
+      sceKernelDelayThread(100*1000);
+    }else if(pad.Buttons & PSP_CTRL_RIGHT){
+      x++;
+      if(x > max_x)x = 0;
+      sceKernelDelayThread(100*1000);
+    } else if(pad.Buttons & PSP_CTRL_LEFT){
+      x--;
+      if(x < 0)x = max_x;
+      sceKernelDelayThread(100*1000);
+    } else if(pad.Buttons & PSP_CTRL_CIRCLE){
+      if(type != NONE){
+        int ret = setShip(x, y, YOU, type, direction);
+        if(ret == 0){
+          type = NONE;
+          max_x = max_y = 9;
+        }
+      } else {
+        Board board = getBoardStatus(YOU, x, y);
+        type = board.type;
+        if(type != NONE){
+          Ship info = getShipInfo(YOU, type);
+          direction = info.direction;
+          x = info.head_x;
+          y = info.head_y;
+          if(direction == VERTICAL){
+            max_y = 9 - info.rest + 1;
+          } else {
+            max_x = 9 - info.rest + 1;
+          }
+          deleteShip(YOU, type);
+        }
+      }
+      waitButtonUp(PSP_CTRL_CIRCLE);
+    } else if(pad.Buttons & (PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER)){
+      if(type != NONE){
+        direction ^= HORIZON;
+        int tmp = max_x;
+        max_x = max_y;
+        max_y = tmp;
+        if(direction == VERTICAL){
+          y++;
+          if(y > max_y)y = 0;
+          y--;
+          if(y < 0)y = max_y;
+        } else {
+          x++;
+          if(x > max_x)x = 0;
+          x--;
+          if(x < 0)x = max_x;
+        }
+        waitButtonUp(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER);
+      }
+    } else if(pad.Buttons & PSP_CTRL_START){
+      if(type == NONE){
+        waitButtonUp(PSP_CTRL_START);
+        return;
+      }
+    }
+    sceKernelDelayThread(10*1000);
+  }
+
+
 }

@@ -47,5 +47,6 @@ void drawBackground();
 void drawBoard(int x, int y, int color);
 void drawShip(int x, int y, int person, int print_ship);
 void drawNowPos(int board_x, int board_y, int x, int y);
+void drawSelecetdShip(int board_x, int board_y, int x, int y, int person, int type, int direction);
 
 #endif

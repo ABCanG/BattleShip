@@ -5,4 +5,5 @@ void startGameCpu();
 void startGameAdhoc();
 void selectAndAttack(int *x, int *y);
 void finishGame(int person);
+void changeShipPos();
 #endif
