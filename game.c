@@ -15,6 +15,7 @@ int waitButtonUp(u32 buttons){
 
 
 void startGameCpu(){
+ REPLAY:
   initStatus();
   setShipRandom(YOU);
   changeShipPos();
@@ -43,16 +44,19 @@ void startGameCpu(){
       while(result == ALREADY){
         u32 rand = sceKernelUtilsMt19937UInt(&ctx);
         int x = rand%10;
-        rand /= 10;
-        int y = rand%10;
+        int y = (rand/10)%10;
         result = attack(x, y, YOU);
       }
     }
     turn ^= 1;
     if(getShipNum(turn) == 0 ){
       waitButtonUp(PSP_CTRL_CIRCLE);
-      finishGame(turn);
-      break;
+      int ret = finishGame(turn);
+      if(ret){
+        goto REPLAY;
+      } else {
+        break;
+      }
     }
   }
 }
@@ -136,21 +140,23 @@ int adhoc_thread(SceSize args, void *argp){
 }
 
 void startGameAdhoc(){
-  initStatus();
-  set_flag = false;
-  info_exchange_flag = false;
-  attack_flag = false;
-  attacked_flag = false;
-  game_set = false;
-
   pspDebugScreenInit();
   pspSdkLoadAdhocModules();
   int x=0, y=0;
 
   ScreenInit();
   if ((adhocInit("Battle Ship") < 0) || ((server = adhocSelect()) < 0)){
+    adhocTerm();
     return;
   }
+
+ REPLAY:
+  initStatus();
+  set_flag = false;
+  info_exchange_flag = false;
+  attack_flag = false;
+  attacked_flag = false;
+  game_set = false;
 
   SceUID thid = sceKernelCreateThread("Achoc_Thread", adhoc_thread, 0x18, 256 * 1024, PSP_THREAD_ATTR_USER, NULL);
   sceKernelStartThread(thid, 0, 0);
@@ -231,15 +237,20 @@ void startGameAdhoc(){
     if(getShipNum(turn) == 0 ){
       game_set = true;
       waitButtonUp(PSP_CTRL_CIRCLE);
-      finishGame(turn);
-      adhocTerm();
-      break;
+      int ret = finishGame(turn);
+      if(ret){
+        goto REPLAY;
+      } else {
+        adhocTerm();
+        break;
+      }
     }
   }
 }
 
-void finishGame(int person){
+int finishGame(int person){
   SceCtrlData pad;
+  int ret;
   while(1){
     startDraw(CADETBLUE);
     drawBoard(25, 36, BLACK);
@@ -251,23 +262,30 @@ void finishGame(int person){
 
     if(person == YOU){
       //lose
-      changeStyle(2.0, 0xD0FFFFFF & BLUE, 0, 0);
+      changeStyle(2.0, BLUE, 0x80FFFFFF & BLACK, 0);
       printTextCenter(136, "YOU LOSE");
     } else {
       //win
-      changeStyle(2.0, 0xD0FFFFFF & RED, 0, 0);
+      changeStyle(2.0, RED, 0x80FFFFFF & BLACK, 0);
       printTextCenter(136, "YOU WIN");
     }
     changeStyle(1.0, WHITE, BLACK, 0);
-    printTextCenter(265, "return title to press O");
+    printTextCenter(170, "return title to press O");
+    printTextCenter(200, "replay to press start");
     endDraw();
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_CIRCLE){
       waitButtonUp(PSP_CTRL_CIRCLE);
-      return;
+      ret = 0;
+      break;
+    } else if(pad.Buttons & PSP_CTRL_START){
+      waitButtonUp(PSP_CTRL_START);
+      ret = 1;
+      break;
     }
     sceKernelDelayThread(10*1000);
   }
+  return ret;
 }
 
 void selectAndAttack(int *x, int *y){
