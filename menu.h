@@ -3,11 +3,9 @@
 
 enum {
   CPU = 0,
-  ADHOC,
-  GAME_SHARING
+  ADHOC
 };
 
-void disableGameSharing();
 int startMenu();
 
 #endif

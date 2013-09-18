@@ -1,5 +1,5 @@
 TARGET = battleship
-OBJS = main.o menu.o draw.o adhoc.o base.o game.o gs.o
+OBJS = main.o menu.o draw.o adhoc.o base.o game.o
 OBJS += image/background.o
 OBJS += intraFont/intraFont.o intraFont/libccc.o
 

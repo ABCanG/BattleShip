@@ -23,7 +23,6 @@
 
 #include "draw.h"
 #include "menu.h"
-#include "gs.h"
 #include "base.h"
 #include "game.h"
 #include "adhoc.h"

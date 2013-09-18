@@ -26,13 +26,6 @@ int setupCallbacks(void) {
 
 
 int main(int argc, char *argv[]) {
-#ifdef SIGN
-  disableGameSharing();
-#else
-  if(argc > 1 && strcmp(argv[2], "GameShar") == 0){
-    disableGameSharing();
-  }
-#endif
   setupCallbacks();
   initDraw();
 
@@ -43,9 +36,6 @@ int main(int argc, char *argv[]) {
       break;
     case ADHOC:
       startGameAdhoc();
-      break;
-    case GAME_SHARING:
-      startGameSharing();
       break;
     }
   }
