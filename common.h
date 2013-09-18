@@ -23,9 +23,10 @@
 
 #include "draw.h"
 #include "menu.h"
-#include "adhoc.h"
+#include "gs.h"
 #include "base.h"
 #include "game.h"
+#include "adhoc.h"
 
 typedef unsigned int size_t;
 

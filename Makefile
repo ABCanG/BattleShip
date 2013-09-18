@@ -1,5 +1,5 @@
 TARGET = battleship
-OBJS = main.o menu.o draw.o adhoc.o base.o game.o
+OBJS = main.o menu.o draw.o adhoc.o base.o game.o gs.o
 OBJS += image/background.o
 OBJS += intraFont/intraFont.o intraFont/libccc.o
 
@@ -17,7 +17,7 @@ BUILD_PRX = 1
 LIBDIR =
 LDFLAGS =
 LIBS = -lpspgum -lpspgu -lm -lpspge -lpspdisplay -lc -lpspuser
-LIBS += -lpsputility -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching
+LIBS += -lpspwlan -lpspnet_adhoc -lpspnet_adhocctl -lpspnet_adhocmatching -lpsputility
 
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = BattleShip

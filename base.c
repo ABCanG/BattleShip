@@ -43,6 +43,13 @@ int getShipNum(int person){
   return info[person].ship_num;
 }
 
+Info getYourInfo(){
+  return info[YOU];
+}
+
+void setRivalInfo(Info rival_info){
+  info[RIVAL] = rival_info;
+}
 
 int setShip(int x, int y, int person, int type, int direction){
   int i, max;

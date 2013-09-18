@@ -56,6 +56,8 @@ int attack(int x, int y, int person);
 int setShip(int x, int y, int person, int type, int direction);
 void setShipRandom(int person);
 int getShipNum(int person);
+Info getYourInfo();
+void setRivalInfo(Info info);
 Ship getShipInfo(int person, int type);
 Board getBoardStatus(int person, int x, int y);
 int deleteShip(int person, int type);
