@@ -38,7 +38,9 @@ void startGameCpu(){
     waitButtonUp(PSP_CTRL_CIRCLE);
 
     if(turn == YOU){
-      selectAndAttack(&x, &y);
+      if(selectAndAttack(&x, &y)){
+        break;
+      }
     } else {
       int result = ALREADY;
       while(result == ALREADY){
@@ -192,7 +194,10 @@ void startGameAdhoc(){
     waitButtonUp(PSP_CTRL_CIRCLE);
 
     if(turn == YOU){
-      selectAndAttack(&x, &y);
+      if(selectAndAttack(&x, &y)){
+        adhocTerm();
+        break;
+      }
       exchange_x = x;
       exchange_y = y;
       attack_flag = true;
@@ -227,6 +232,11 @@ void startGameAdhoc(){
           x--;
           if(x < 0)x = 9;
           sceKernelDelayThread(100*1000);
+        } else if(pad.Buttons & PSP_CTRL_TRIANGLE){
+          if(askReturnTitle(x, y)){
+            adhocTerm();
+            break;
+          }
         }
         sceKernelDelayThread(10*1000);
       }
@@ -288,7 +298,37 @@ int finishGame(int person){
   return ret;
 }
 
-void selectAndAttack(int *x, int *y){
+int askReturnTitle(int x, int y){
+  SceCtrlData pad;
+  int ret;
+  while(1){
+    startDraw(CADETBLUE);
+    drawBoard(25, 36, BLACK);
+    drawShip(25, 36, YOU, 1);
+    drawBoard(255, 36, BLACK);
+    drawShip(255, 36, RIVAL, 0);
+    drawNowPos(255, 36, x, y);
+    printText(25, 20, "YOU %d", getShipNum(YOU));
+    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    printTextCenter(140, "Do you want to return to title?");
+    printTextCenter(170, "return to title to press O");
+    printTextCenter(200, "cancel to press X");
+    endDraw();
+    sceCtrlReadBufferPositive(&pad, 1);
+    if(pad.Buttons & PSP_CTRL_CIRCLE){
+      waitButtonUp(PSP_CTRL_CIRCLE);
+      ret = 1;
+      break;
+    } else if(pad.Buttons & PSP_CTRL_CROSS){
+      waitButtonUp(PSP_CTRL_CROSS);
+      ret = 0;
+      break;
+    }
+  }
+  return ret;
+}
+
+int selectAndAttack(int *x, int *y){
   SceCtrlData pad;
   int result = ALREADY;
   while(1){
@@ -322,10 +362,15 @@ void selectAndAttack(int *x, int *y){
       sceKernelDelayThread(100*1000);
     } else if(pad.Buttons & PSP_CTRL_CIRCLE){
       result = attack(*x, *y, RIVAL);
-      if(result != ALREADY)return;
+      if(result != ALREADY)break;
+    } else if(pad.Buttons & PSP_CTRL_TRIANGLE){
+      if(askReturnTitle(*x, *y)){
+        return 1;
+      }
     }
     sceKernelDelayThread(10*1000);
   }
+  return 0;
 }
 
 void changeShipPos(){
