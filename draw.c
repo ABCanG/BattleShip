@@ -7,7 +7,8 @@
 static intraFont* ltn0;
 static unsigned int __attribute__((aligned(16))) list[262144];
 extern unsigned char background_start[];
-
+static int board_pos_x[2];
+static int board_pos_y[2];
 
 void initDraw(){
   intraFontInit();
@@ -235,15 +236,20 @@ void drawBackground(){
   drawImage(0, 0, 480, 272, background_start, 512);
 }
 
-void drawBoard(int x, int y, int color){
+void drawBoard(int person){
   int i;
+  int color = BLACK;
+  int x = board_pos_x[person];
+  int y = board_pos_y[person];
   for(i=0; i<=10; i++){
     drawLine(x + 20*i, y, x + 20*i, y + 201, color);
     drawLine(x, y + 20*i, x + 201, y + 20*i, color);
   }
 }
 
-void drawShip(int x, int y, int person, int print_ship){
+void drawShip(int person, int print_ship){
+  int x = board_pos_x[person];
+  int y = board_pos_y[person];
   x++; y++;
   int i, j;
   for(i=0; i<10; i++){
@@ -268,7 +274,9 @@ void drawShip(int x, int y, int person, int print_ship){
   }
 }
 
-void drawSelecetdShip(int board_x, int board_y, int x, int y, int person, int type, int direction){
+void drawSelecetdShip(int x, int y, int person, int type, int direction){
+  int board_x = board_pos_x[person];
+  int board_y = board_pos_y[person];
   board_x++; board_y++;
   int i;
   Ship info = getShipInfo(person, type);
@@ -287,7 +295,24 @@ void drawSelecetdShip(int board_x, int board_y, int x, int y, int person, int ty
 }
 
 
-void drawNowPos(int board_x, int board_y, int x, int y){
+void drawNowPos(int x, int y, int person){
+  int board_x = board_pos_x[person];
+  int board_y = board_pos_y[person];
   board_x++; board_y++;
   drawBox(board_x + x*20, board_y + y*20, board_x + x*20 + 19, board_y + y*20 + 19, 0x80FFFFFF & YELLOW);
+}
+
+void setBoardPos(int x, int y, int person){
+  board_pos_x[person] = x;
+  board_pos_y[person] = y;
+}
+
+void drawGameScreen(int x, int y, int finish_flag){
+  drawBoard(YOU);
+  drawShip(YOU, 1);
+  drawBoard(RIVAL);
+  drawShip(RIVAL, finish_flag);
+  if(!finish_flag)drawNowPos(x, y, RIVAL);
+  printText(board_pos_x[YOU], 20, "YOU %d", getShipNum(YOU));
+  printText(board_pos_x[RIVAL], 20, "RIVAL %d", getShipNum(RIVAL));
 }

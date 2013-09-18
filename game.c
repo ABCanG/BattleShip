@@ -17,6 +17,8 @@ int waitButtonUp(u32 buttons){
 void startGameCpu(){
  REPLAY:
   initStatus();
+  setBoardPos(25, 36, YOU);
+  setBoardPos(255, 36, RIVAL);
   setShipRandom(YOU);
   changeShipPos();
   setShipRandom(RIVAL);
@@ -26,13 +28,7 @@ void startGameCpu(){
   int x=0, y=0;
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 0);
-    drawNowPos(255, 36, x, y);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(x, y, 0);
     endDraw();
 
     waitButtonUp(PSP_CTRL_CIRCLE);
@@ -144,7 +140,10 @@ int adhoc_thread(SceSize args, void *argp){
 void startGameAdhoc(){
   pspDebugScreenInit();
   pspSdkLoadAdhocModules();
+  setBoardPos(25, 36, YOU);
+  setBoardPos(255, 36, RIVAL);
   int x=0, y=0;
+  SceCtrlData pad;
 
   ScreenInit();
   if ((adhocInit("Battle Ship") < 0) || ((server = adhocSelect()) < 0)){
@@ -169,26 +168,21 @@ void startGameAdhoc(){
 
   while(!info_exchange_flag){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 0);
-    drawNowPos(255, 36, x, y);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(x, y, 0);
     printTextCenter(265, "please wait...");
     endDraw();
+    sceCtrlReadBufferPositive(&pad, 1);
+    if(pad.Buttons & PSP_CTRL_TRIANGLE){
+      if(askReturnTitle(x, y)){
+        adhocTerm();
+        return;
+      }
+    }
     sceKernelDelayThread(100*1000);
   }
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 0);
-    drawNowPos(255, 36, x, y);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(x, y, 0);
     endDraw();
 
     waitButtonUp(PSP_CTRL_CIRCLE);
@@ -202,16 +196,9 @@ void startGameAdhoc(){
       exchange_y = y;
       attack_flag = true;
     } else {
-      SceCtrlData pad;
       while(!attacked_flag){
         startDraw(CADETBLUE);
-        drawBoard(25, 36, BLACK);
-        drawShip(25, 36, YOU, 1);
-        drawBoard(255, 36, BLACK);
-        drawShip(255, 36, RIVAL, 0);
-        drawNowPos(255, 36, x, y);
-        printText(25, 20, "YOU %d", getShipNum(YOU));
-        printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+        drawGameScreen(x, y, 0);
         printTextCenter(265, "Rival turn");
         endDraw();
 
@@ -263,12 +250,7 @@ int finishGame(int person){
   int ret;
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 1);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(0, 0, 1);
 
     if(person == YOU){
       //lose
@@ -303,13 +285,7 @@ int askReturnTitle(int x, int y){
   int ret;
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 0);
-    drawNowPos(255, 36, x, y);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(x, y, 0);
     printTextCenter(140, "Do you want to return to title?");
     printTextCenter(170, "return to title to press O");
     printTextCenter(200, "cancel to press X");
@@ -333,13 +309,7 @@ int selectAndAttack(int *x, int *y){
   int result = ALREADY;
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
-    drawBoard(255, 36, BLACK);
-    drawShip(255, 36, RIVAL, 0);
-    drawNowPos(255, 36, *x, *y);
-    printText(25, 20, "YOU %d", getShipNum(YOU));
-    printText(255, 20, "RIVAL %d", getShipNum(RIVAL));
+    drawGameScreen(*x, *y, 0);
     printTextCenter(265, "Your turn");
     endDraw();
 
@@ -381,12 +351,12 @@ void changeShipPos(){
   int max_x = 9, max_y = 9;
   while(1){
     startDraw(CADETBLUE);
-    drawBoard(25, 36, BLACK);
-    drawShip(25, 36, YOU, 1);
+    drawBoard(YOU);
+    drawShip(YOU, 1);
     if(type == NONE){
-      drawNowPos(25, 36, x, y);
+      drawNowPos(x, y, YOU);
     } else {
-      drawSelecetdShip(25, 36, x, y, YOU, type, direction);
+      drawSelecetdShip(x, y, YOU, type, direction);
     }
 
     printTextCenter(20, "Setting Ship's Position");
@@ -465,6 +435,4 @@ void changeShipPos(){
     }
     sceKernelDelayThread(10*1000);
   }
-
-
 }

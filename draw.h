@@ -45,9 +45,11 @@ void drawBox(int x1, int y1, int x2, int y2, unsigned int color);
 void drawLine(int x1, int y1, int x2, int y2, unsigned int color);
 void drawPoint(int x, int y, unsigned int color);
 void drawBackground();
-void drawBoard(int x, int y, int color);
-void drawShip(int x, int y, int person, int print_ship);
-void drawNowPos(int board_x, int board_y, int x, int y);
-void drawSelecetdShip(int board_x, int board_y, int x, int y, int person, int type, int direction);
+void drawBoard(int person);
+void drawShip(int person, int print_ship);
+void drawNowPos(int x, int y, int person);
+void drawSelecetdShip(int x, int y, int person, int type, int direction);
+void setBoardPos(int x, int y, int person);
+void drawGameScreen(int x, int y, int finish_flag);
 
 #endif
