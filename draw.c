@@ -259,8 +259,9 @@ void drawShip(int x, int y, int person, int print_ship){
         }
       } else {
         if(board.status == ATTACKED){
-          drawLine(x + i*20, y + j*20, x + i*20 + 19, y + j*20 + 19, BLACK);
-          drawLine(x + i*20 + 19, y + j*20, x + i*20, y + j*20 + 19, BLACK);
+          drawBox(x + i*20, y + j*20, x + i*20 + 19, y + j*20 + 19, TEAL);
+          //          drawLine(x + i*20, y + j*20, x + i*20 + 19, y + j*20 + 19, BLACK);
+          //drawLine(x + i*20 + 19, y + j*20, x + i*20, y + j*20 + 19, BLACK);
         }
       }
     }
