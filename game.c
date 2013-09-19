@@ -17,6 +17,7 @@ int waitButtonUp(u32 buttons){
 void startGameCpu(){
  REPLAY:
   initStatus();
+  changeStyle(1.0, WHITE, BLACK, 0);
   setBoardPos(25, 36, YOU);
   setBoardPos(255, 36, RIVAL);
   setShipRandom(YOU);
@@ -140,6 +141,7 @@ int adhoc_thread(SceSize args, void *argp){
 void startGameAdhoc(){
   pspDebugScreenInit();
   pspSdkLoadAdhocModules();
+  changeStyle(1.0, WHITE, BLACK, 0);
   setBoardPos(25, 36, YOU);
   setBoardPos(255, 36, RIVAL);
   int x=0, y=0;
@@ -174,6 +176,7 @@ void startGameAdhoc(){
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_TRIANGLE){
       if(askReturnTitle(x, y)){
+        sceKernelTerminateDeleteThread(thid);
         adhocTerm();
         return;
       }
@@ -221,8 +224,9 @@ void startGameAdhoc(){
           sceKernelDelayThread(100*1000);
         } else if(pad.Buttons & PSP_CTRL_TRIANGLE){
           if(askReturnTitle(x, y)){
+            sceKernelTerminateDeleteThread(thid);
             adhocTerm();
-            break;
+            return;
           }
         }
         sceKernelDelayThread(10*1000);
