@@ -155,7 +155,6 @@ void startGameAdhoc(){
     adhocTerm();
     return;
   }
-
  REPLAY:
   initStatus();
   set_flag = false;
@@ -178,7 +177,7 @@ void startGameAdhoc(){
   while(!info_exchange_flag){
     startDraw(CADETBLUE);
     drawGameScreen(x, y, 0);
-    printTextCenter(265, "please wait...");
+    printTextCenter(265, "しばらくお待ち下さい");
     endDraw();
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_TRIANGLE){
@@ -209,7 +208,7 @@ void startGameAdhoc(){
       while(!attacked_flag){
         startDraw(CADETBLUE);
         drawGameScreen(x, y, 0);
-        printTextCenter(265, "Rival turn");
+        printTextCenter(265, "相手の番です");
         endDraw();
 
         sceCtrlReadBufferPositive(&pad, 1);
@@ -266,15 +265,15 @@ int finishGame(int person){
     if(person == YOU){
       //lose
       changeStyle(2.0, BLUE, 0x80FFFFFF & BLACK, 0);
-      printTextCenter(136, "YOU LOSE");
+      printTextCenter(136, "あなたの負けです");
     } else {
       //win
       changeStyle(2.0, RED, 0x80FFFFFF & BLACK, 0);
-      printTextCenter(136, "YOU WIN");
+      printTextCenter(136, "あなたの勝ちです");
     }
     changeStyle(1.0, WHITE, BLACK, 0);
-    printTextCenter(170, "return title to press O");
-    printTextCenter(200, "replay to press start");
+    printTextCenter(170, "Oボタンでタイトルに戻る");
+    printTextCenter(200, "スタートボタンでもう一度遊ぶ");
     endDraw();
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_CIRCLE){
@@ -296,10 +295,12 @@ int askReturnTitle(int x, int y){
   int ret;
   while(1){
     startDraw(CADETBLUE);
-    drawGameScreen(x, y, 0);
-    printTextCenter(140, "Do you want to return to title?");
-    printTextCenter(170, "return to title to press O");
-    printTextCenter(200, "cancel to press X");
+	if(x >= 0 && y >= 0){
+		drawGameScreen(x, y, 0);
+	}
+    printTextCenter(140, "タイトルに戻りますか？");
+    printTextCenter(170, "Oボタンで戻る");
+    printTextCenter(200, "Xボタンでキャンセル");
     endDraw();
     sceCtrlReadBufferPositive(&pad, 1);
     if(pad.Buttons & PSP_CTRL_CIRCLE){
@@ -321,7 +322,7 @@ int selectAndAttack(int *x, int *y){
   while(1){
     startDraw(CADETBLUE);
     drawGameScreen(*x, *y, 0);
-    printTextCenter(265, "Your turn");
+    printTextCenter(265, "あなたの番です");
     endDraw();
 
     sceCtrlReadBufferPositive(&pad, 1);
@@ -370,11 +371,11 @@ int changeShipPos(){
       drawSelecetdShip(x, y, YOU, type, direction);
     }
 
-    printTextCenter(20, "Setting Ship's Position");
-    printText(255, 80, "select / release to \npress O");
-    printText(255, 130, "move pointer to press \narrow buttons");
-    printText(255, 180, "change direction to \npress R or L");
-    printText(255, 230, "start game to press \nstart");
+    printTextCenter(20, "船の設定");
+    printText(255, 80, "Oボタンで選択、決定");
+    printText(255, 130, "十字ボタンで移動");
+    printText(255, 180, "R または Lで方向の変更");
+    printText(255, 230, "STARTでゲーム開始");
 
     endDraw();
 
@@ -444,7 +445,10 @@ int changeShipPos(){
         break;
       }
     } else if(pad.Buttons & PSP_CTRL_TRIANGLE){
-      return 1;
+        waitButtonUp(PSP_CTRL_TRIANGLE);
+		if(askReturnTitle(-1, -1)){
+			return 1;
+		}
     }
     sceKernelDelayThread(10*1000);
   }

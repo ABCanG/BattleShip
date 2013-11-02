@@ -4,7 +4,7 @@
 #include "common.h"
 #include "draw.h"
 
-static intraFont* ltn0;
+static intraFont* jpn0;
 static unsigned int __attribute__((aligned(16))) list[262144];
 extern unsigned char background_start[];
 static int board_pos_x[2];
@@ -13,8 +13,8 @@ static int board_pos_y[2];
 void initDraw(){
   intraFontInit();
 
-  ltn0 = intraFontLoad("flash0:/font/ltn0.pgf",0);
-  intraFontSetStyle(ltn0, 1.0f, WHITE, BLACK, 0);
+  jpn0 = intraFontLoad("flash0:/font/jpn0.pgf", INTRAFONT_STRING_UTF8);
+  intraFontSetStyle(jpn0, 0.8f, WHITE, BLACK, 0);
 
   sceGuInit();
   sceGuStart(GU_DIRECT, list);
@@ -91,7 +91,7 @@ void endDraw(){
 }
 
 void changeStyle(float size, unsigned int main, unsigned int edge, unsigned int opt){
-  intraFontSetStyle(ltn0, size, main, edge, opt);
+  intraFontSetStyle(jpn0, size, main, edge, opt);
 }
 
 float printText(float x, float y, const char *text, ...){
@@ -103,7 +103,7 @@ float printText(float x, float y, const char *text, ...){
   va_end(ap);
   buffer[255] = 0;
 
-  return intraFontPrint(ltn0, x, y, buffer);
+  return intraFontPrint(jpn0, x, y, buffer);
 }
 
 
@@ -116,7 +116,7 @@ float measureText(const char *text, ...){
   va_end(ap);
   buffer[255] = 0;
 
-  return intraFontMeasureText(ltn0, buffer);
+  return intraFontMeasureText(jpn0, buffer);
 }
 
 float printTextCenter(int y, char *text, ...){
@@ -313,6 +313,6 @@ void drawGameScreen(int x, int y, int finish_flag){
   drawBoard(RIVAL);
   drawShip(RIVAL, finish_flag);
   if(!finish_flag)drawNowPos(x, y, RIVAL);
-  printText(board_pos_x[YOU], 20, "YOU %d", getShipNum(YOU));
-  printText(board_pos_x[RIVAL], 20, "RIVAL %d", getShipNum(RIVAL));
+  printText(board_pos_x[YOU], 20, "あなた %d", getShipNum(YOU));
+  printText(board_pos_x[RIVAL], 20, "相手 %d", getShipNum(RIVAL));
 }
