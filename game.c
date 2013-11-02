@@ -21,7 +21,10 @@ void startGameCpu(){
   setBoardPos(25, 36, YOU);
   setBoardPos(255, 36, RIVAL);
   setShipRandom(YOU);
-  changeShipPos();
+  if(changeShipPos()){
+    return;
+  }
+
   setShipRandom(RIVAL);
   SceKernelUtilsMt19937Context ctx;
   sceKernelUtilsMt19937Init(&ctx, clock());
@@ -165,7 +168,11 @@ void startGameAdhoc(){
   sceKernelStartThread(thid, 0, 0);
 
   setShipRandom(YOU);
-  changeShipPos();
+  if(changeShipPos()){
+    sceKernelTerminateDeleteThread(thid);
+    adhocTerm();
+    return;
+  }
   set_flag = true;
 
   while(!info_exchange_flag){
@@ -347,7 +354,7 @@ int selectAndAttack(int *x, int *y){
   return 0;
 }
 
-void changeShipPos(){
+int changeShipPos(){
   SceCtrlData pad;
   int x=0, y=0;
   int direction = VERTICAL;
@@ -434,9 +441,12 @@ void changeShipPos(){
     } else if(pad.Buttons & PSP_CTRL_START){
       if(type == NONE){
         waitButtonUp(PSP_CTRL_START);
-        return;
+        break;
       }
+    } else if(pad.Buttons & PSP_CTRL_TRIANGLE){
+      return 1;
     }
     sceKernelDelayThread(10*1000);
   }
+  return 0;
 }
