@@ -197,7 +197,8 @@ void startGameAdhoc(){
     waitButtonUp(PSP_CTRL_CIRCLE);
 
     if(turn == YOU){
-      if(selectAndAttack(&x, &y)){
+		sceKernelDelayThread(500*1000);
+		if(selectAndAttack(&x, &y)){
         adhocTerm();
         break;
       }
