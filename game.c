@@ -135,6 +135,7 @@ int adhoc_thread(SceSize args, void *argp){
       attacked_flag = true;
     }
     while(turn != next_turn){
+		printf("aaaa\n");
       sceKernelDelayThread(100*1000);
     }
   }
