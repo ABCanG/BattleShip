@@ -1006,12 +1006,19 @@ int adhocRecv(void *buffer, int *length)
 	データを受信するまで待つ (ack受信用)
 --------------------------------------------------------*/
 
-int adhocRecvBlocked(void *buffer, int *length)
+int adhocRecvBlocked(void *buffer, int *length, int timeout)
 {
 	int error_code = 0;
+	int count = 0;
 
 	do
 	{
+		if(timeout > 0){
+			count++;
+			if(timeout < count){
+				return 0;
+			}
+		}
 		error_code = adhocRecv(buffer, length);
 		sceKernelDelayThread(1000);
 	} while (error_code == 0);
@@ -1040,8 +1047,9 @@ int adhocSendRecvAck(void *buffer, int length)
 		if ((error_code = adhocSend(buffer, tempLen)) < 0)
 			return error_code;
 
-		if ((error_code = adhocRecvBlocked(&recvTemp, &recvLen)) < 0)
+		if ((error_code = adhocRecvBlocked(&recvTemp, &recvLen, 2000)) < 0)
 			return error_code;
+		if(error_code == 0)continue;
 
 		buffer += 0x400;
 		sentCount += 0x400;
@@ -1068,7 +1076,7 @@ int adhocRecvSendAck(void *buffer, int *length)
 		if (tempLen > 0x400)
 			tempLen = 0x400;
 
-		if ((error_code = adhocRecvBlocked(buffer, length)) < 0)
+		if ((error_code = adhocRecvBlocked(buffer, length, 0)) < 0)
 			return error_code;
 
 		if ((error_code = adhocSend(&temp, 1)) < 0)

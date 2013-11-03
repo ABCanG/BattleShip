@@ -32,7 +32,7 @@ int adhocReconnect(char *ssid);
 
 int adhocSend(void *buffer, int length);
 int adhocRecv(void *buffer, int *length);
-int adhocRecvBlocked(void *buffer, int *length);
+int adhocRecvBlocked(void *buffer, int *length, int timeout);
 
 int adhocSendRecvAck(void *buffer, int length);
 int adhocRecvSendAck(void *buffer, int *length);

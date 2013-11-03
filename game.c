@@ -135,6 +135,7 @@ int adhoc_thread(SceSize args, void *argp){
       attacked_flag = true;
     }
     while(turn != next_turn){
+		printf("aaaa\n");
       sceKernelDelayThread(100*1000);
     }
   }
@@ -197,7 +198,8 @@ void startGameAdhoc(){
     waitButtonUp(PSP_CTRL_CIRCLE);
 
     if(turn == YOU){
-      if(selectAndAttack(&x, &y)){
+		sceKernelDelayThread(500*1000);
+		if(selectAndAttack(&x, &y)){
         adhocTerm();
         break;
       }
